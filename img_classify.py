@@ -37,9 +37,7 @@ class Classifier(object):
 
         #converting last output of dimension [batch_size,num_units] to [batch_size,n_classes] by out_weight multiplication
         self.__prediction = tf.matmul(__outputs[-1],__out_weights) + __out_bias
-    def batchCreator(self, file_name):
-        
-        pass
+
     def train(self, inputs):
         """inputs: []"""
         #loss_function
@@ -50,20 +48,28 @@ class Classifier(object):
         #initialize variables
         init=tf.global_variables_initializer()
         with tf.Session() as sess:
-        sess.run(init)
-        iter=1
-        while iter<800:
-            batch_x,batch_y=mnist.train.next_batch(batch_size=batch_size)
-            batch_x=batch_x.reshape((batch_size,time_steps,n_input))
-            sess.run(opt, feed_dict={x: batch_x, y: batch_y})
-            if iter %10==0:
-                acc=sess.run(accuracy,feed_dict={x:batch_x,y:batch_y})
-                los=sess.run(loss,feed_dict={x:batch_x,y:batch_y})
-                print("For iter ",iter)
-                print("Accuracy ",acc)
-                print("Loss ",los)
-                print("__________________")
-            iter=iter+1
+            sess.run(init)
+            iter=1
+            while iter<800:
+                batch_x,batch_y=mnist.train.next_batch(batch_size=batch_size)
+                batch_x=batch_x.reshape((batch_size,time_steps,n_input))
+                sess.run(opt, feed_dict={x: batch_x, y: batch_y})
+                if iter %10==0:
+                    acc=sess.run(accuracy,feed_dict={x:batch_x,y:batch_y})
+                    los=sess.run(loss,feed_dict={x:batch_x,y:batch_y})
+                    print("For iter ",iter)
+                    print("Accuracy ",acc)
+                    print("Loss ",los)
+                    print("__________________")
+                iter=iter+1
 
         pass
     pass
+
+
+def main():
+    config = Config()
+
+
+if __name__ == '__main__':
+    main()

@@ -79,7 +79,9 @@ class ImgBatchCreator(BatchCreator):
         sample_file = os.path.join(sample_path,sample_file)
         print('正在读取：',sample_file)
         data = image_preprocessing(sample_file)
-        batch  = [data]
+        batch_x  = [data]
+        batch_y = np.zeros((self._batch_size,self._n_classes))
+        batch_y[0,0] = 1
         for i in range(1,self._batch_size):
             if class_str == str(self._n_classes -1 ):
                 class_str = '0'
@@ -90,9 +92,10 @@ class ImgBatchCreator(BatchCreator):
             sample_file = os.path.join(sample_path,sample_file)
             print('正在读取：',sample_file)
             data = image_preprocessing(sample_file)
-            batch = np.concatenate([batch,[data]],axis = 0)
-        batch = np.stack(batch,axis=0)
-        return batch
+            batch_x = np.concatenate([batch_x,[data]],axis = 0)
+            batch_y[i,int(class_str)] = 1
+        batch_x = np.stack(batch_x,axis=0)
+        return batch_x,batch_y
 
 
 def main():
@@ -107,7 +110,8 @@ def main():
     image_preprocessing('D:\\python\\lstm\\train\\0\\aeroplane_s_000004.png')
 
     c = ImgBatchCreator(25,'D:\\python\\lstm',[50,50],10)
-    d = c.getBatch()
+    d ,y= c.getBatch()
     print(d.shape)
+    print(y)
 if __name__ == '__main__':
     main()

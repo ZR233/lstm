@@ -25,3 +25,5 @@ print(im.size)
 resized = np.array(im)
 print(resized.shape)
 im.save('cat3.png')
+
+batch_y = [[0]]
