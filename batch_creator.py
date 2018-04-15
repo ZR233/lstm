@@ -2,34 +2,35 @@ import os
 import tensorflow as tf
 import random
 import numpy as np
-
-
-def mux(img_data):
-    resized = tf.unstack(img_data,axis=2)
-    
-
+from PIL import Image
 
 def image_preprocessing(image_file = '', size = 100):
     '''返回2维矩阵(1,3*size*size)'''
-    image_raw_data = tf.gfile.FastGFile(image_file,'rb').read()
-    with tf.Session() as sess:
-        img_data = tf.image.decode_jpeg(image_raw_data)
-        # print(img_data.eval())
-
-        image_shape = img_data.eval().shape
-        if image_shape[0] <= image_shape[1]:
-            p = float(size)/(img_data.eval().shape[0])*(img_data.eval().shape[1])
-            resized = tf.image.resize_images(img_data, (size, int(p)), method=1)
-        else:
-            p = float(size)/(img_data.eval().shape[1])*(img_data.eval().shape[0])
-            resized = tf.image.resize_images(img_data, (int(p),size), method=1)
-        resized = tf.image.resize_image_with_crop_or_pad(resized,size,size)
-        channels = tf.unstack(resized,num = 3,axis= 2)
-        channels_reshaped = []
-        for i in range(3):
-            channels_reshaped.append(tf.reshape(channels[i],[1,-1]))
-        channels_in_one = tf.concat(channels_reshaped,axis = 1)
-        data = channels_in_one.eval()
+    im = Image.open(image_file)
+    #图片转化为(size,size)
+    w,h = im.size
+    if (w <= h):
+        p = float(size)/w*h
+        im = im.resize((size, int(p)))
+        w,h = im.size
+        x = (h-size)/2
+        im = im.crop((0,x,100,100+x))
+    else:
+        p = float(size)/h*w
+        im = im.resize((int(p), size))
+        w,h = im.size
+        x = int((w-size)/2)
+        im = im.crop((x,0,100+x,100))
+    resized = np.array(im)
+    channels = []
+    channels.append(resized[:,:,0])
+    channels.append(resized[:,:,1])
+    channels.append(resized[:,:,2])
+    channels_reshaped = []
+    for i in range(3):
+        channels_reshaped.append(np.reshape(channels[i],[1,-1]))
+    channels_in_one = np.concatenate(channels_reshaped,axis = 1)
+    data = channels_in_one
     print (len(data[0]))
     return data
 
